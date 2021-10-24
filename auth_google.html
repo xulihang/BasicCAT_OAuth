@@ -9,7 +9,7 @@
     <script type="text/javascript">
         // Parses the url and gets the access token if it is in the urls hash
         var code = utils.parseQueryString(window.location.hash).code;
-        if (!!token){
+        if (!!code){
             alert("You have been authorized.");
         }else{
             alert("You have not been authorized.");
