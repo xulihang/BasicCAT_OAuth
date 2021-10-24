@@ -1,14 +1,24 @@
 <html>
 <head>
     <title>Auth</title>
-    <script src="utils.js"></script>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0" />
 </head>
 <body>
     <p>Please close the page.</p>
     <script type="text/javascript">
+        function getQueryVariable(variable)
+        {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i=0;i<vars.length;i++) {
+                var pair = vars[i].split("=");
+                if(pair[0] == variable){return pair[1];}
+            }
+            return "";
+        }
+        
         // Parses the url and gets the access token if it is in the urls hash
-        var code = utils.parseQueryString(window.location.hash).code;
+        var code = getQueryVariable("code");
         if (!!code){
             alert("You have been authorized.");
         }else{
