@@ -10,7 +10,7 @@ function initClient() {
   gapi.client.init({
       'apiKey': 'AIzaSyCTqGrZ0Fj0HPObUjlKZyAT_PMe6TV_hcA',
       'clientId': '32642297349-svt3qef43q76aquqfscsctu6ltbnlj4u.apps.googleusercontent.com',
-      'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
+      'scope': 'https://www.googleapis.com/auth/drive.file',
       'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
   }).then(function () {
       GoogleAuth = gapi.auth2.getAuthInstance();
