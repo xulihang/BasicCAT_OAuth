@@ -1,0 +1,102 @@
+<html>
+  <head>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/tanaikech/ResumableUploadForGoogleDrive_js@master/resumableupload_js.min.js"></script>
+  </head>
+  <body>
+    <div id="authStatus"></div>
+    <button onclick="Authorize()">Authorize</button>
+    <form>
+        <input name="file" id="uploadfile" type="file" />
+    </form>
+    <div id="progress"></div>
+    <div><pre id="ocrResult"></pre></div>
+    <script>
+    var fileId;
+    var GoogleAuth; // Google Auth object.
+    document.getElementById("uploadfile").addEventListener("change", onLoadFile, false);
+    function initClient() {
+      gapi.client.init({
+          'apiKey': 'AIzaSyCTqGrZ0Fj0HPObUjlKZyAT_PMe6TV_hcA',
+          'clientId': '32642297349-svt3qef43q76aquqfscsctu6ltbnlj4u.apps.googleusercontent.com',
+          'scope': 'https://www.googleapis.com/auth/drive.file',
+          'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+      }).then(function () {
+          GoogleAuth = gapi.auth2.getAuthInstance();
+          
+
+          // Listen for sign-in state changes.
+          GoogleAuth.isSignedIn.listen(updateSigninStatus);
+      });
+    }
+    gapi.load('client', initClient);
+
+    function Authorize(){
+        GoogleAuth.signIn();
+    }
+    
+    function updateSigninStatus(){
+        console.log("signed in");
+    }
+    
+    function onLoadFile(obj){
+        const file = obj.target.files[0];
+        if (file.name != "") {
+          let fr = new FileReader();
+          fr.fileName = file.name;
+          fr.fileSize = file.size;
+          fr.fileType = "application/vnd.google-apps.document";
+          fr.readAsArrayBuffer(file);
+          fr.onload = resumableUpload;
+        }
+    }
+    
+    function resumableUpload(e) {
+        document.getElementById("progress").innerHTML = "Initializing.";
+        const f = e.target;
+        const resource = {
+          fileName: f.fileName,
+          fileSize: f.fileSize,
+          fileType: f.fileType,
+          fileBuffer: f.result,
+          accessToken: gapi.auth.getToken().access_token
+        };
+        const ru = new ResumableUploadToGoogleDrive();
+        ru.Do(resource, function(res, err) {
+          if (err) {
+            console.log(err);
+            return;
+          }
+          console.log("res");
+          console.log(res);
+          let msg = "";
+          if (res.status == "Uploading") {
+            msg =
+              Math.round(
+                (res.progressNumber.current / res.progressNumber.end) * 100
+              ) + "%";
+          } else {
+            msg = res.status;
+          }
+          document.getElementById("progress").innerText = msg;fileId = res.result.id;
+        });
+    }
+    
+    function download(){
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;// or this: gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "https://www.googleapis.com/drive/v3/files/"+fileId+'/export?mimeType=text%2Fplain', true);
+        xhr.setRequestHeader('Authorization','Bearer '+accessToken);
+        xhr.responseType = 'arraybuffer'
+        xhr.onload = function(){
+
+            console.log(xhr.response);
+            var string = new TextDecoder("utf8").decode(xhr.response);
+            document.getElementById("ocrResult").innerText=string;
+
+        }
+        xhr.send();
+    }
+    </script>
+  </body>
+</html>
