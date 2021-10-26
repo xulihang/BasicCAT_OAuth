@@ -33,7 +33,6 @@
 
     function Authorize(){
         GoogleAuth.signIn();
-        updateSigninStatus();
     }
     
     function updateSigninStatus(){
@@ -95,7 +94,7 @@
     }
     
     function Download(){
-        if (fileId=""){
+        if (fileId == ""){
             alert("Please upload a file first.");
             return;
         }
