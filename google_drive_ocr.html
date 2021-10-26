@@ -6,6 +6,7 @@
   <body>
     <div id="authStatus"></div>
     <button onclick="Authorize()">Authorize</button>
+    <button onclick="Download()">Download OCR Result</button>
     <form>
         <input name="file" id="uploadfile" type="file" />
     </form>
@@ -23,20 +24,26 @@
           'discoveryDocs': ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
       }).then(function () {
           GoogleAuth = gapi.auth2.getAuthInstance();
-          
-
           // Listen for sign-in state changes.
           GoogleAuth.isSignedIn.listen(updateSigninStatus);
+          updateSigninStatus();
       });
     }
     gapi.load('client', initClient);
 
     function Authorize(){
         GoogleAuth.signIn();
+        updateSigninStatus();
     }
     
     function updateSigninStatus(){
-        console.log("signed in");
+        var status = document.getElementById("authStatus");
+        if (gapi.auth.getToken() == null){
+            status.innerText="Not authorized.";
+        }else{
+            status.innerText="Authorized.";
+        }
+        console.log(status.innerText);
     }
     
     function onLoadFile(obj){
@@ -87,7 +94,11 @@
         });
     }
     
-    function download(){
+    function Download(){
+        if (fileId=""){
+            alert("Please upload a file first.");
+            return;
+        }
         var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;// or this: gapi.auth.getToken().access_token;
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "https://www.googleapis.com/drive/v3/files/"+fileId+'/export?mimeType=text%2Fplain', true);
