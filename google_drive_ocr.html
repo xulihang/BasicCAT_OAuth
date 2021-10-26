@@ -78,7 +78,12 @@
           } else {
             msg = res.status;
           }
-          document.getElementById("progress").innerText = msg;fileId = res.result.id;
+          document.getElementById("progress").innerText = msg;
+          if ("result" in res){
+              if ("id" in res.result){
+                  fileId = res.result.id;
+              }
+          }
         });
     }
     
